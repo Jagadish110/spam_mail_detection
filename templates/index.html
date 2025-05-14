@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Mail Detection</title>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            text-align: center;
+            padding: 50px;
+            background: rgb(248, 251, 251);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: dotted;
+            color: rgb(10, 10, 10);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgb(233, 227, 227);
+        }
+
+        form {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: rgb(15, 15, 15);
+            border-radius: 10px;
+            box-shadow: 0 2px 16px rgb(47, 105, 141);
+        }
+
+        textarea {
+            width: 91%;
+            padding: 12px;
+            border: none;
+            border-radius:1;
+            resize: none;
+            background: rgb(249, 244, 244);
+            color: #589dc2;
+            font-size: 1em;
+            box-shadow: inset 0 0px 0px rgba(246, 240, 244, 0.922);
+            transition: all 0.5s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            background: #ededf1;
+            transform: translateY(2px);
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            background-color: rgb(67, 152, 195);
+            color: rgb(13, 1, 1);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: rgb(57, 13, 146);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: rgb(127, 127, 183);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            form {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Spam Mail Detection</h1>
+        <form action="/predict" method="post">
+            <textarea name="email_text" rows="8" placeholder="Enter your email content here..." required></textarea><br><br>
+            <button type="submit">Check if Spam</button>
+        </form>
+
+        {% if result %}
+        <div class="result">
+            <p><strong>Prediction:</strong> {{ result }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
