@@ -16,10 +16,8 @@ app.add_middleware(
 )
 
 # Load model and vectorizer
-model_path = Path(__file__).parent / "spam_mail_classifier.pkl"
-vectorizer_path = Path(__file__).parent / "vectorizer.pkl"
 
-model = joblib.load(model_path)
+vectorizer_path = Path(__file__).parent / "spam_mail_classifier.pkl"
 vectorizer = joblib.load(vectorizer_path)
 
 # Jinja2 template directory
@@ -38,7 +36,7 @@ async def predict(request: Request, email_text: str = Form(...)):
         input_vector = vectorizer.transform([email_text])
         
         # Predict using loaded model
-        prediction = model.predict(input_vector)[0]
+        prediction = vectorizer.predict(input_vector)[0]
         
         # Result message
         result = "The given mail is spam." if prediction == 1 else "It is not spam mail."
