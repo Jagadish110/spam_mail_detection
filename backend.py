@@ -7,7 +7,6 @@ from pathlib import Path
 
 app = FastAPI()
 
-# CORS middleware (if using frontend on a different port)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,35 +14,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model and vectorizer
+# Load trained model and vectorizer
+model_path = Path(__file__).parent / "spam_mail_classifier.pkl"
+vectorizer_path = Path(__file__).parent / "vectorizer.pkl"
 
-vectorizer_path = Path(__file__).parent / "spam_mail_classifier.pkl"
-vectorizer = joblib.load(vectorizer_path)
+model = joblib.load(model_path)        # LogisticRegression model
+vectorizer = joblib.load(vectorizer_path)  # TfidfVectorizer or CountVectorizer
 
-# Jinja2 template directory
 templates = Jinja2Templates(directory="templates")
 
-# GET route to render HTML page
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# POST route for prediction
 @app.post("/predict", response_class=HTMLResponse)
 async def predict(request: Request, email_text: str = Form(...)):
     try:
-        # Transform text to numeric features
-        input_vector = vectorizer.transform([email_text])
-        
-        # Predict using loaded model
-        prediction = vectorizer.predict(input_vector)[0]
-        
-        # Result message
+        # Convert text to vector
+        input_vector = vectorizer.transform([email_text])  # ✅ FIXED LINE
+
+        # Predict
+        prediction = model.predict(input_vector)[0]
+
+        # Format result
         result = "The given mail is spam." if prediction == 1 else "It is not spam mail."
     except Exception as e:
-        result = f"Prediction failed: {e}"  # Keep error for debugging
+        result = f"Prediction failed: {e}"  # Show the actual error
 
     return templates.TemplateResponse("index.html", {
         "request": request,
         "result": result
     })
+ 
