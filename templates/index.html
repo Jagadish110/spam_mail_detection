@@ -6,98 +6,111 @@
     <title>Spam Mail Detection</title>
     <style>
         body {
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            text-align: center;
-            padding: 50px;
-            background: rgb(7, 7, 7);
-            margin: 0;
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0b0b0b, #022561);
             display: flex;
             justify-content: center;
             align-items: center;
-            text-decoration: dotted;
-            color: rgb(242, 236, 236);
+            height: 100vh;
+            margin: 0;
+            perspective: 1000px; /* Enables 3D perspective */
         }
 
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 5px rgb(7, 7, 7);
+        .container {
+            background: #040505;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transform: rotateY(10deg); /* 3D tilt effect */
+            transition: transform 0.3s ease;
+            width: 500px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        form {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            background: rgb(10, 10, 10);
-            border-radius: 10px;
-            box-shadow: 0 2px 16px rgb(47, 105, 141);
+        .container:hover {
+            transform: rotateY(0deg) translateZ(20px); /* Pop-out effect on hover */
+        }
+
+        h2 {
+            color: #dbe1ea;
+            margin-bottom: 1.5rem;
+            font-size: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateZ(30px); /* 3D depth for heading */
         }
 
         textarea {
-            width: 91%;
-            padding: 12px;
-            border: none;
-            border-radius:1;
+            width: 100%;
+            height: 200px;
+            border: 2px solid #2a5298;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1rem;
             resize: none;
-            background: rgb(2, 1, 16);
-            color: #549ee9;
-            font-size: 1em;
-            box-shadow: inset 0 0px 0px rgba(246, 240, 244, 0.922);
-            transition: all 0.5s ease;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         textarea:focus {
             outline: none;
-            background: #ebebf0;
-            transform: translateY(2px);
+            transform: translateZ(10px); /* Slight 3D lift on focus */
+            box-shadow: 0 0 10px rgba(42, 82, 152, 0.5);
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 1em;
+            background: #2a5298;
+            color: #fff;
             border: none;
-            border-radius: 8px;
-            background-color: rgb(67, 152, 195);
-            color: rgb(13, 1, 1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transform: translateZ(0);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         button:hover {
-            background-color: rgb(57, 13, 146);
+            transform: translateZ(15px) scale(1.05); /* 3D pop and slight scale */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateZ(5px); /* Press-down effect */
+        }
+
+        h3 {
+            margin-top: 1.5rem;
+            color: #0e58e1;
+            transform: translateZ(20px); /* 3D depth for result */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.751);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateZ(-50px); }
+            to { opacity: 1; transform: translateZ(0); }
         }
 
         .result {
-            margin-top: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: rgb(127, 127, 183);
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2em;
-            }
-
-            form {
-                padding: 15px;
-            }
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
 <body>
-    <div>
-        <h1>Spam Mail Detection</h1>
+    <div class="container">
+        <h2>Spam Mail Detection</h2>
         <form action="/predict" method="post">
-            <textarea name="email_text" rows="8" placeholder="Enter your email content here..." required></textarea><br><br>
-            <button type="submit">Check if Spam</button>
+            <textarea name="email_text" rows="10" cols="50" placeholder="Enter your email content here..."></textarea><br>
+            <button type="submit">Check</button>
         </form>
 
         {% if result %}
-        <div class="result">
-            <p><strong>Prediction:</strong> {{ result }}</p>
-        </div>
+            <h3 class="result">Result: {{ result }}</h3>
         {% endif %}
     </div>
 </body>
