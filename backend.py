@@ -9,7 +9,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allow all origins for simplicity; restrict in production
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -43,3 +43,8 @@ async def predict(email_text: str = Form(...)):
         return JSONResponse(content={"message": message, "is_spam": bool(prediction)})
     except Exception as e:
         return JSONResponse(content={"message": f"Error: {str(e)}", "is_spam": None})
+
+# For local development (optional)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=10000)
