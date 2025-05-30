@@ -1,19 +1,33 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import joblib
 from pathlib import Path
 import random
 
 app = FastAPI()
 
+# Serve HTML templates
+templates = Jinja2Templates(directory="templates")
+
+# Optional: serve static files (e.g., JS, CSS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Allow CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for simplicity; restrict in production
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Load model and vectorizer
+model = joblib.load(Path(__file__).parent / "spam_mail_classifier.pkl")
+vectorizer = joblib.load(Path(__file__).parent / "vectorizer.pkl")
+
+# Sample messages
 NON_SPAM_MESSAGES = [
     "This email is safe to read!",
     "Looks like a genuine message!",
@@ -30,9 +44,9 @@ SPAM_MESSAGES = [
     "Caution, this looks like spam!"
 ]
 
-# Load model and vectorizer
-model = joblib.load(Path(__file__).parent / "spam_mail_classifier.pkl")
-vectorizer = joblib.load(Path(__file__).parent / "vectorizer.pkl")
+@app.get("/", response_class=HTMLResponse)
+async def serve_home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/predict")
 async def predict(email_text: str = Form(...)):
@@ -43,8 +57,3 @@ async def predict(email_text: str = Form(...)):
         return JSONResponse(content={"message": message, "is_spam": bool(prediction)})
     except Exception as e:
         return JSONResponse(content={"message": f"Error: {str(e)}", "is_spam": None})
-
-# For local development (optional)
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=10000)
