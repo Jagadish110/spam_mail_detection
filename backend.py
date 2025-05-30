@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import joblib
 from pathlib import Path
 import random
@@ -15,7 +14,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Lists of unique messages for spam and non-spam
 NON_SPAM_MESSAGES = [
     "This email is safe to read!",
     "Looks like a genuine message!",
@@ -23,6 +21,7 @@ NON_SPAM_MESSAGES = [
     "No worries, this email is clean!",
     "This message passes the spam check!"
 ]
+
 SPAM_MESSAGES = [
     "Beware, this email looks suspicious!",
     "This mail is likely spam!",
@@ -31,39 +30,16 @@ SPAM_MESSAGES = [
     "Caution, this looks like spam!"
 ]
 
-# Load trained model and vectorizer
-try:
-    model_path = Path(__file__).parent / "spam_mail_classifier.pkl"
-    vectorizer_path = Path(__file__).parent / "vectorizer.pkl"
-    model = joblib.load(model_path)  # LogisticRegression model
-    vectorizer = joblib.load(vectorizer_path)  # TfidfVectorizer or CountVectorizer
-except FileNotFoundError as e:
-    raise Exception(f"Model or vectorizer file not found: {e}")
+# Load model and vectorizer
+model = joblib.load(Path(__file__).parent / "spam_mail_classifier.pkl")
+vectorizer = joblib.load(Path(__file__).parent / "vectorizer.pkl")
 
-templates = Jinja2Templates(directory="templates")
-
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "result": None})
-
-@app.post("/predict", response_class=HTMLResponse)
-async def predict(request: Request, email_text: str = Form(...)):
+@app.post("/predict")
+async def predict(email_text: str = Form(...)):
     try:
-        # Convert text to vector
-        input_vector = vectorizer.transform([email_text])
-
-        # Predict
-        prediction = model.predict(input_vector)[0]
-
-        # Select random message based on prediction
-        result = {
-            "message": random.choice(NON_SPAM_MESSAGES) if prediction == 0 else random.choice(SPAM_MESSAGES),
-            "is_spam": prediction == 1
-        }
+        vector = vectorizer.transform([email_text])
+        prediction = model.predict(vector)[0]
+        message = random.choice(SPAM_MESSAGES if prediction else NON_SPAM_MESSAGES)
+        return JSONResponse(content={"message": message, "is_spam": bool(prediction)})
     except Exception as e:
-        result = {"message": f"Prediction failed: {str(e)}", "is_spam": None}
-
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "result": result
-    })
+        return JSONResponse(content={"message": f"Error: {str(e)}", "is_spam": None})

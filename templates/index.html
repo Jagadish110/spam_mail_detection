@@ -1,117 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spam Mail Detection</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0b0b0b, #022561);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            perspective: 1000px; /* Enables 3D perspective */
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spam Mail Detection</title>
+  
+  <!-- SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        .container {
-            background: #040505;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transform: rotateY(10deg); /* 3D tilt effect */
-            transition: transform 0.3s ease;
-            width: 500px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
-        .container:hover {
-            transform: rotateY(0deg) translateZ(20px); /* Pop-out effect on hover */
-        }
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #1b3a4b);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+    }
 
-        h2 {
-            color: #dbe1ea;
-            margin-bottom: 1.5rem;
-            font-size: 40px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            transform: translateZ(30px); /* 3D depth for heading */
-        }
+    .container {
+      background-color: #2a2a40;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
 
-        textarea {
-            width: 100%;
-            height: 200px;
-            border: 2px solid #2a5298;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 1rem;
-            resize: none;
-            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+    .container:hover {
+      transform: translateY(-3px);
+    }
 
-        textarea:focus {
-            outline: none;
-            transform: translateZ(10px); /* Slight 3D lift on focus */
-            box-shadow: 0 0 10px rgba(42, 82, 152, 0.5);
-        }
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      color: #f1f1f1;
+    }
 
-        button {
-            background: #2a5298;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 1rem;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            transform: translateZ(0);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      resize: none;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      background-color: #383854;
+      color: #f1f1f1;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
 
-        button:hover {
-            transform: translateZ(15px) scale(1.05); /* 3D pop and slight scale */
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
+    textarea::placeholder {
+      color: #ccc;
+    }
 
-        button:active {
-            transform: translateZ(5px); /* Press-down effect */
-        }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.8rem 2rem;
+      background-color: #4c8bf5;
+      color: #fff;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
 
-        h3 {
-            margin-top: 1.5rem;
-            color: #0e58e1;
-            transform: translateZ(20px); /* 3D depth for result */
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.751);
-        }
+    button:hover {
+      background-color: #3a73d8;
+      transform: scale(1.05);
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateZ(-50px); }
-            to { opacity: 1; transform: translateZ(0); }
-        }
+    button:active {
+      transform: scale(0.98);
+    }
 
-        .result {
-            animation: fadeIn 0.5s ease forwards;
-        }
-    </style>
+    @media screen and (max-width: 600px) {
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Spam Mail Detection</h2>
-        <form action="/predict" method="post">
-            <textarea name="email_text" rows="10" cols="50" placeholder="Enter your email content here..."></textarea><br>
-            <button type="submit">Check</button>
-        </form>
+  <div class="container">
+    <h2>Spam Mail Detection</h2>
+    <form id="spamForm">
+      <textarea name="email_text" id="email_text" placeholder="Enter your email content here..."></textarea>
+      <button type="submit">Check</button>
+    </form>
+  </div>
 
-        {% if result %}
-            <h3 class="result">Result: {{ result }}</h3>
-        {% endif %}
-    </div>
+  <script>
+    document.getElementById('spamForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const text = document.getElementById('email_text').value.trim();
+
+      if (!text) {
+        Swal.fire({
+          title: "Input Required",
+          text: "Please enter some email content.",
+          icon: "warning"
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("email_text", text);
+
+      try {
+        const response = await fetch("https://your-backend-url.onrender.com/predict", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await response.json();
+        const isSpam = result.is_spam;
+        const message = result.message;
+
+        Swal.fire({
+          title: message,
+          icon: isSpam ? "error" : "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: isSpam ? "#e74c3c" : "#2ecc71"
+        });
+
+      } catch (error) {
+        Swal.fire("Error", "Something went wrong!", "error");
+      }
+    });
+  </script>
 </body>
 </html>
