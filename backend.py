@@ -1,12 +1,19 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 import joblib
 from pathlib import Path
 import random
 
 app = FastAPI()
 
+# Set up templates and static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+# CORS for frontend requests (if hosted separately)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,6 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Load the model and vectorizer
+model = joblib.load(Path(__file__).parent / "spam_mail_classifier.pkl")
+vectorizer = joblib.load(Path(__file__).parent / "vectorizer.pkl")
+
+# Response messages
 NON_SPAM_MESSAGES = [
     "This email is safe to read!",
     "Looks like a genuine message!",
@@ -30,9 +42,9 @@ SPAM_MESSAGES = [
     "Caution, this looks like spam!"
 ]
 
-# Load model and vectorizer
-model = joblib.load(Path(__file__).parent / "spam_mail_classifier.pkl")
-vectorizer = joblib.load(Path(__file__).parent / "vectorizer.pkl")
+@app.get("/", response_class=HTMLResponse)
+async def serve_home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/predict")
 async def predict(email_text: str = Form(...)):
